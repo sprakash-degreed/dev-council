@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="Kannan" width="200">
+</p>
+
 # Kannan
 
 Adaptive multi-agent development environment. Named after Krishna (Kannan in Tamil), the divine strategist and guide who orchestrated the greatest heroes to work together.
