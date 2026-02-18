@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+# Council — Adaptive Multi-Agent Development Environment
+# https://github.com/council-dev/council
+set -euo pipefail
+
+COUNCIL_VERSION="0.1.0"
+COUNCIL_DIR=".council"
+# Resolve through symlinks to find the real install location
+_resolve_script_dir() {
+    local source="${BASH_SOURCE[0]}"
+    while [[ -L "$source" ]]; do
+        local dir
+        dir="$(cd -P "$(dirname "$source")" && pwd)"
+        source="$(readlink "$source")"
+        # Resolve relative symlinks
+        [[ "$source" != /* ]] && source="$dir/$source"
+    done
+    cd -P "$(dirname "$source")" && pwd
+}
+SCRIPT_DIR="$(_resolve_script_dir)"
+
+# Source all library modules
+source "$SCRIPT_DIR/lib/util.sh"
+source "$SCRIPT_DIR/lib/repo.sh"
+source "$SCRIPT_DIR/lib/agents.sh"
+source "$SCRIPT_DIR/lib/roles.sh"
+source "$SCRIPT_DIR/lib/consensus.sh"
+source "$SCRIPT_DIR/lib/ui.sh"
+source "$SCRIPT_DIR/lib/config.sh"
+source "$SCRIPT_DIR/lib/memory.sh"
+source "$SCRIPT_DIR/lib/runtime.sh"
+
+# --- Commands ---
+
+cmd_version() {
+    echo "council v${COUNCIL_VERSION}"
+}
+
+cmd_dev() {
+    local dir="."
+    local prompt=""
+
+    # Parse flags
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -p|--prompt)
+                prompt="$2"
+                shift 2
+                ;;
+            *)
+                dir="$1"
+                shift
+                ;;
+        esac
+    done
+
+    dir="$(cd "$dir" && pwd)"
+
+    ui_banner
+    ui_info "Working directory: $dir"
+
+    # Initialize .council state directory
+    council_init "$dir"
+
+    # Phase 1: Understand the repository
+    ui_phase "Analyzing repository..."
+    repo_analyze "$dir"
+
+    # Phase 2: Discover available agents
+    ui_phase "Discovering agents..."
+    agents_discover
+
+    local agent_count
+    agent_count="$(agents_available_count)"
+    if [[ "$agent_count" -eq 0 ]]; then
+        ui_error "No agents found. Install at least one of: claude, codex, gemini, ollama"
+        exit 1
+    fi
+    ui_success "Found $agent_count agent(s): $(agents_available_names)"
+
+    # Phase 2.5: Load config (after agents so we can validate pinned assignments)
+    config_load "$dir"
+    config_apply
+
+    # Phase 2.6: Greenfield detection
+    if repo_is_greenfield "$dir"; then
+        ui_greenfield_bootstrap
+        repo_set_greenfield_prefs "$dir" \
+            "$_GREENFIELD_LANGUAGE" \
+            "$_GREENFIELD_FRAMEWORK" \
+            "$_GREENFIELD_DESCRIPTION"
+    fi
+
+    # Phase 3: Execute
+    if [[ -n "$prompt" ]]; then
+        # Single-shot mode: run once and exit
+        runtime_once "$dir" "$prompt"
+    else
+        # Interactive loop
+        ui_phase "Ready for instructions"
+        echo ""
+        runtime_loop "$dir"
+    fi
+}
+
+cmd_agent_list() {
+    agents_discover
+    agents_list_pretty
+}
+
+cmd_agent_test() {
+    local name="${1:?Usage: council agent test <name>}"
+    agents_discover
+    if ! agents_is_available "$name"; then
+        ui_error "Agent '$name' is not available"
+        exit 1
+    fi
+    ui_info "Testing agent: $name"
+    adapter_execute "$name" "" "Respond with exactly: Hello from $name" 2>/dev/null
+}
+
+cmd_usage() {
+    local subcmd="${1:-}"
+
+    case "$subcmd" in
+        global)
+            memory_usage_global
+            ;;
+        clear)
+            if ui_confirm "Clear global usage log?"; then
+                rm -f "$COUNCIL_GLOBAL_DIR/usage.jsonl"
+                ui_success "Global usage log cleared"
+            else
+                ui_info "Cancelled"
+            fi
+            ;;
+        *)
+            # Project-local usage (default)
+            local dir="${subcmd:-.}"
+            dir="$(cd "$dir" && pwd)"
+            memory_usage_table "$dir"
+            ;;
+    esac
+}
+
+cmd_memory_show() {
+    local dir="${1:-.}"
+    dir="$(cd "$dir" && pwd)"
+    memory_show "$dir"
+}
+
+cmd_memory_clear() {
+    local dir="${1:-.}"
+    dir="$(cd "$dir" && pwd)"
+    if ui_confirm "Clear all project memory for $dir?"; then
+        memory_clear "$dir"
+    else
+        ui_info "Cancelled"
+    fi
+}
+
+cmd_help() {
+    cat <<EOF
+Council v${COUNCIL_VERSION} — Adaptive Multi-Agent Development Environment
+
+Usage:
+  council dev [dir]                Start interactive council session (default: current dir)
+  council dev [dir] -p "intent"    Run a single intent and exit
+  council agent list               List available agents
+  council agent test <name>        Test an agent with a simple prompt
+  council config init [dir]        Generate a starter .council/config.json
+  council usage [dir]               Show project token usage per agent
+  council usage global             Show global usage across all projects
+  council usage clear              Clear global usage log
+  council memory show [dir]        Show project memory (sessions, patterns, stats)
+  council memory clear [dir]       Clear project memory
+  council version                  Print version
+  council help                     Show this help
+
+Options:
+  -p, --prompt "text"    Run a single intent non-interactively
+
+Examples:
+  cd my-project && council dev
+  council dev /path/to/repo
+  council dev -p "add input validation to the login form"
+  council dev /path/to/repo -p "fix the failing tests"
+  council memory show
+  council agent list
+EOF
+}
+
+# --- Main ---
+
+main() {
+    local cmd="${1:-help}"
+    shift || true
+
+    case "$cmd" in
+        dev)          cmd_dev "$@" ;;
+        agent)
+            local subcmd="${1:-list}"
+            shift || true
+            case "$subcmd" in
+                list) cmd_agent_list ;;
+                test) cmd_agent_test "$@" ;;
+                *)    ui_error "Unknown agent command: $subcmd"; cmd_help; exit 1 ;;
+            esac
+            ;;
+        config)
+            local subcmd="${1:-help}"
+            shift || true
+            case "$subcmd" in
+                init) config_init "$@" ;;
+                *)    echo "Usage: council config init [dir]"; exit 1 ;;
+            esac
+            ;;
+        memory)
+            local subcmd="${1:-show}"
+            shift || true
+            case "$subcmd" in
+                show)  cmd_memory_show "$@" ;;
+                clear) cmd_memory_clear "$@" ;;
+                *)     echo "Usage: council memory show|clear [dir]"; exit 1 ;;
+            esac
+            ;;
+        usage)        cmd_usage "$@" ;;
+        version)      cmd_version ;;
+        help|--help)  cmd_help ;;
+        *)            ui_error "Unknown command: $cmd"; cmd_help; exit 1 ;;
+    esac
+}
+
+main "$@"
