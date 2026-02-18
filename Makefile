@@ -6,6 +6,14 @@ SHARE_DIR = $(PREFIX)/share/kannan
 .PHONY: install uninstall test check
 
 install:
+	@bash_ver=$$(bash -c 'echo $$BASH_VERSINFO'); \
+		if [ "$$bash_ver" -lt 4 ] 2>/dev/null; then \
+			echo "ERROR: kannan requires bash 4+, but found bash $$bash_ver" >&2; \
+			if [ "$$(uname -s)" = "Darwin" ]; then \
+				echo "  macOS ships bash 3.2. Run: brew install bash" >&2; \
+			fi; \
+			exit 1; \
+		fi
 	@echo "Installing kannan to $(PREFIX)..."
 	@mkdir -p $(PREFIX)/bin
 	@mkdir -p $(SHARE_DIR)/lib

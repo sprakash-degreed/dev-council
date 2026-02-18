@@ -3,6 +3,20 @@
 # Named after Krishna (Kannan in Tamil), the divine strategist and guide
 set -euo pipefail
 
+# Bash 4+ required for associative arrays (declare -A)
+if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
+    echo "ERROR: kannan requires bash 4+, but you have bash ${BASH_VERSION}" >&2
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "  macOS ships bash 3.2. Install a newer version:" >&2
+        echo "    brew install bash" >&2
+        echo "  Then either restart your terminal or run:" >&2
+        echo "    export PATH=\"/opt/homebrew/bin:\$PATH\"" >&2
+    else
+        echo "  Install bash 4+ via your package manager." >&2
+    fi
+    exit 1
+fi
+
 KANNAN_VERSION="0.1.0"
 KANNAN_DIR=".kannan"
 # Resolve through symlinks to find the real install location
