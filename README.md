@@ -9,13 +9,14 @@ Council orchestrates Claude, Codex, Gemini, and Ollama — assigning dynamic rol
 ```sh
 git clone https://github.com/council-dev/council.git
 cd council
-./council dev /path/to/your/project
+make install    # installs to ~/.local/bin (no sudo)
+council dev /path/to/your/project
 ```
 
-Or install system-wide:
+Or run directly without installing:
 
 ```sh
-make install
+./council dev /path/to/your/project
 ```
 
 ## Requirements
@@ -114,18 +115,47 @@ Roles are assigned dynamically per task — agents don't permanently own roles:
 | Gemini | code, review, plan, general |
 | Ollama | review, plan, general |
 
+## Installation
+
+```sh
+# Option 1: Run the installer (no sudo needed)
+./install.sh
+
+# Option 2: make install (defaults to ~/.local)
+make install
+
+# Option 3: System-wide (requires sudo)
+sudo make install PREFIX=/usr/local
+
+# Option 4: Run directly from the repo
+./council dev
+```
+
+The installer puts the binary at `~/.local/bin/council`. If `~/.local/bin` isn't in your PATH, it'll tell you what to add.
+
+To uninstall:
+
+```sh
+./install.sh uninstall
+# or
+make uninstall
+```
+
 ## Project Structure
 
 ```
 council/
 ├── council              # Main entry point
+├── install.sh           # Cross-platform installer
 ├── lib/
-│   ├── util.sh          # Helpers (IDs, slugify, state)
+│   ├── util.sh          # Helpers (IDs, slugify, state, token tracking)
 │   ├── ui.sh            # Display (colors, gum, streaming)
 │   ├── repo.sh          # Repo understanding engine
 │   ├── agents.sh        # Agent discovery + registry
 │   ├── roles.sh         # Role assignment + system prompts
 │   ├── consensus.sh     # Critique/revision loop
+│   ├── config.sh        # Config loader (.council/config.json)
+│   ├── memory.sh        # Project memory (sessions, patterns, stats)
 │   └── runtime.sh       # Orchestration loop
 ├── adapters/
 │   ├── claude.sh        # Claude CLI adapter
@@ -137,12 +167,125 @@ council/
 
 ## Configuration
 
-Council is zero-config by default. Optional environment variables:
+Council is zero-config by default — it discovers agents and assigns roles dynamically. For more control, create a `.council/config.json` in your project:
 
 ```sh
-COUNCIL_DEBUG=1              # Enable debug output
-COUNCIL_MAX_ITERATIONS=3     # Max critique/revision rounds
-COUNCIL_OLLAMA_MODEL=llama3.2  # Ollama model to use
+council config init
+```
+
+This generates a starter config:
+
+```json
+{
+  "roles": {
+    "planner": "",
+    "architect": "",
+    "implementer": "",
+    "critic": "",
+    "debugger": "",
+    "tester": "",
+    "verifier": ""
+  },
+  "agent_prompts": {
+    "claude": "",
+    "codex": "",
+    "gemini": "",
+    "ollama": ""
+  },
+  "ollama_model": "",
+  "max_iterations": 3
+}
+```
+
+### Pinning Roles to Agents
+
+Set an agent name in `roles` to always use that agent for a role. Leave empty for dynamic assignment.
+
+```json
+{
+  "roles": {
+    "planner": "claude",
+    "implementer": "codex",
+    "critic": "gemini"
+  }
+}
+```
+
+With this config, Claude always plans, Codex always implements, and Gemini always reviews. Unset roles (architect, debugger, tester, verifier) are assigned dynamically based on capability matching.
+
+If a pinned agent isn't available, council warns and falls back to dynamic assignment.
+
+### Custom Agent Prompts
+
+Add custom instructions that get prepended to every prompt sent to an agent:
+
+```json
+{
+  "agent_prompts": {
+    "claude": "Always use TypeScript. Prefer functional patterns over classes.",
+    "codex": "Keep changes minimal. Do not refactor surrounding code."
+  }
+}
+```
+
+### Ollama Model
+
+Override the default Ollama model (defaults to `llama3.2`):
+
+```json
+{
+  "ollama_model": "mistral"
+}
+```
+
+Also configurable via environment variable: `COUNCIL_OLLAMA_MODEL=mistral`
+
+### Max Iterations
+
+Control how many critique/revision rounds the consensus loop runs (default: 3):
+
+```json
+{
+  "max_iterations": 5
+}
+```
+
+### Environment Variables
+
+These work without a config file and override config values:
+
+```sh
+COUNCIL_DEBUG=1                  # Enable debug output
+COUNCIL_MAX_ITERATIONS=3         # Max critique/revision rounds
+COUNCIL_OLLAMA_MODEL=llama3.2    # Ollama model to use
+COUNCIL_GLOBAL_DIR=~/.council    # Global state directory
+```
+
+## Memory
+
+Council remembers past sessions and gets smarter over time for each project. Memory is stored in `.council/memory/` and includes:
+
+- **Sessions log** — what was tried, what got accepted/rejected, and why
+- **Learned patterns** — coding conventions discovered by the critic
+- **Agent stats** — which agent performs best at which role
+
+Agents automatically see recent memory in their prompts, so they avoid repeating past mistakes and follow established patterns.
+
+```sh
+# View project memory
+council memory show
+
+# View global token usage across all projects
+council usage global
+
+# View project-local token usage
+council usage
+
+# Clear project memory
+council memory clear
+
+# Clear global usage log
+council usage clear
 ```
 
 ## Safety
