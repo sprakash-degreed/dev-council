@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Gemini CLI Adapter
+# Kannan — Gemini CLI Adapter
 
 gemini_execute() {
     local system_prompt="$1"

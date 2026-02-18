@@ -1,22 +1,24 @@
-# Council
+# Kannan
 
-Adaptive multi-agent development environment. Run `council dev` in any repo, give a high-level instruction, and let multiple AI agents collaboratively produce working code changes.
+Adaptive multi-agent development environment. Named after Krishna (Kannan in Tamil), the divine strategist and guide who orchestrated the greatest heroes to work together.
 
-Council orchestrates Claude, Codex, Gemini, and Ollama — assigning dynamic roles (planner, implementer, critic, etc.) and coordinating execution with a critique/consensus loop.
+Run `kannan dev` in any repo, give a high-level instruction, and let multiple AI agents collaboratively produce working code changes.
+
+Kannan orchestrates Claude, Codex, Gemini, and Ollama — assigning dynamic roles (planner, implementer, critic, etc.) and coordinating execution with a critique/consensus loop.
 
 ## Quick Start
 
 ```sh
-git clone https://github.com/council-dev/council.git
-cd council
+git clone https://github.com/chaoticfly/dev-council.git
+cd dev-council
 make install    # installs to ~/.local/bin (no sudo)
-council dev /path/to/your/project
+kannan dev /path/to/your/project
 ```
 
 Or run directly without installing:
 
 ```sh
-./council dev /path/to/your/project
+./kannan dev /path/to/your/project
 ```
 
 ## Requirements
@@ -44,17 +46,17 @@ make check
 ## Usage
 
 ```sh
-# Start council in current directory
-council dev
+# Start kannan in current directory
+kannan dev
 
 # Start in a specific repo
-council dev /path/to/project
+kannan dev /path/to/project
 
 # List detected agents
-council agent list
+kannan agent list
 
 # Test a specific agent
-council agent test claude
+kannan agent test claude
 ```
 
 Once running, give natural language instructions:
@@ -65,7 +67,7 @@ Once running, give natural language instructions:
 > refactor the database layer to use connection pooling
 ```
 
-Council will:
+Kannan will:
 1. Analyze your repository (languages, deps, frameworks, structure)
 2. Plan the implementation using a planner agent
 3. Execute with an implementer agent
@@ -77,7 +79,7 @@ Council will:
 ```
 Developer intent
       |
-  Repo Analysis ---- .council/project_model.json
+  Repo Analysis ---- .kannan/project_model.json
       |
   Task Decomposition (planner agent)
       |
@@ -128,10 +130,10 @@ make install
 sudo make install PREFIX=/usr/local
 
 # Option 4: Run directly from the repo
-./council dev
+./kannan dev
 ```
 
-The installer puts the binary at `~/.local/bin/council`. If `~/.local/bin` isn't in your PATH, it'll tell you what to add.
+The installer puts the binary at `~/.local/bin/kannan`. If `~/.local/bin` isn't in your PATH, it'll tell you what to add.
 
 To uninstall:
 
@@ -144,8 +146,8 @@ make uninstall
 ## Project Structure
 
 ```
-council/
-├── council              # Main entry point
+kannan/
+├── kannan               # Main entry point
 ├── install.sh           # Cross-platform installer
 ├── lib/
 │   ├── util.sh          # Helpers (IDs, slugify, state, token tracking)
@@ -154,7 +156,7 @@ council/
 │   ├── agents.sh        # Agent discovery + registry
 │   ├── roles.sh         # Role assignment + system prompts
 │   ├── consensus.sh     # Critique/revision loop
-│   ├── config.sh        # Config loader (.council/config.json)
+│   ├── config.sh        # Config loader (.kannan/config.json)
 │   ├── memory.sh        # Project memory (sessions, patterns, stats)
 │   └── runtime.sh       # Orchestration loop
 ├── adapters/
@@ -167,10 +169,10 @@ council/
 
 ## Configuration
 
-Council is zero-config by default — it discovers agents and assigns roles dynamically. For more control, create a `.council/config.json` in your project:
+Kannan is zero-config by default — it discovers agents and assigns roles dynamically. For more control, create a `.kannan/config.json` in your project:
 
 ```sh
-council config init
+kannan config init
 ```
 
 This generates a starter config:
@@ -213,7 +215,7 @@ Set an agent name in `roles` to always use that agent for a role. Leave empty fo
 
 With this config, Claude always plans, Codex always implements, and Gemini always reviews. Unset roles (architect, debugger, tester, verifier) are assigned dynamically based on capability matching.
 
-If a pinned agent isn't available, council warns and falls back to dynamic assignment.
+If a pinned agent isn't available, kannan warns and falls back to dynamic assignment.
 
 ### Custom Agent Prompts
 
@@ -238,7 +240,7 @@ Override the default Ollama model (defaults to `llama3.2`):
 }
 ```
 
-Also configurable via environment variable: `COUNCIL_OLLAMA_MODEL=mistral`
+Also configurable via environment variable: `KANNAN_OLLAMA_MODEL=mistral`
 
 ### Max Iterations
 
@@ -255,15 +257,15 @@ Control how many critique/revision rounds the consensus loop runs (default: 3):
 These work without a config file and override config values:
 
 ```sh
-COUNCIL_DEBUG=1                  # Enable debug output
-COUNCIL_MAX_ITERATIONS=3         # Max critique/revision rounds
-COUNCIL_OLLAMA_MODEL=llama3.2    # Ollama model to use
-COUNCIL_GLOBAL_DIR=~/.council    # Global state directory
+KANNAN_DEBUG=1                  # Enable debug output
+KANNAN_MAX_ITERATIONS=3         # Max critique/revision rounds
+KANNAN_OLLAMA_MODEL=llama3.2    # Ollama model to use
+KANNAN_GLOBAL_DIR=~/.kannan     # Global state directory
 ```
 
 ## Memory
 
-Council remembers past sessions and gets smarter over time for each project. Memory is stored in `.council/memory/` and includes:
+Kannan remembers past sessions and gets smarter over time for each project. Memory is stored in `.kannan/memory/` and includes:
 
 - **Sessions log** — what was tried, what got accepted/rejected, and why
 - **Learned patterns** — coding conventions discovered by the critic
@@ -273,27 +275,27 @@ Agents automatically see recent memory in their prompts, so they avoid repeating
 
 ```sh
 # View project memory
-council memory show
+kannan memory show
 
 # View global token usage across all projects
-council usage global
+kannan usage global
 
 # View project-local token usage
-council usage
+kannan usage
 
 # Clear project memory
-council memory clear
+kannan memory clear
 
 # Clear global usage log
-council usage clear
+kannan usage clear
 ```
 
 ## Safety
 
-- Never pushes directly to main — changes go to `council/<slug>` branches
+- Never pushes directly to main — changes go to `kannan/<slug>` branches
 - Asks for confirmation before executing plans
 - Runs project tests before finalizing (when detectable)
-- All state stays local in `.council/`
+- All state stays local in `.kannan/`
 
 ## License
 

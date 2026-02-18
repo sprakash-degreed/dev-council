@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Utility functions
+# Kannan — Utility functions
 
 # Check if a command exists
 has_cmd() { command -v "$1" &>/dev/null; }
@@ -30,36 +30,36 @@ json_get() {
 }
 
 # Create temp file that cleans up on exit
-council_tmpfile() {
+kannan_tmpfile() {
     local tmp
     tmp="$(mktemp)"
     trap "rm -f '$tmp'" EXIT
     echo "$tmp"
 }
 
-# Initialize the .council directory for a project
-council_init() {
+# Initialize the .kannan directory for a project
+kannan_init() {
     local dir="$1"
-    mkdir -p "$dir/$COUNCIL_DIR/cache"
-    mkdir -p "$dir/$COUNCIL_DIR/patches"
-    mkdir -p "$dir/$COUNCIL_DIR/memory"
+    mkdir -p "$dir/$KANNAN_DIR/cache"
+    mkdir -p "$dir/$KANNAN_DIR/patches"
+    mkdir -p "$dir/$KANNAN_DIR/memory"
 }
 
-# Get the .council dir path for a project
-council_state_dir() {
+# Get the .kannan dir path for a project
+kannan_state_dir() {
     local dir="$1"
-    echo "$dir/$COUNCIL_DIR"
+    echo "$dir/$KANNAN_DIR"
 }
 
 # Simple key-value store using flat files
 state_set() {
     local dir="$1" key="$2" value="$3"
-    echo "$value" > "$dir/$COUNCIL_DIR/cache/$key"
+    echo "$value" > "$dir/$KANNAN_DIR/cache/$key"
 }
 
 state_get() {
     local dir="$1" key="$2"
-    local file="$dir/$COUNCIL_DIR/cache/$key"
+    local file="$dir/$KANNAN_DIR/cache/$key"
     [[ -f "$file" ]] && cat "$file" || echo ""
 }
 

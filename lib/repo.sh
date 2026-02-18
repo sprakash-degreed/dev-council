@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Council — Repository Understanding Engine
-# Analyzes a repo and produces .council/project_model.json
+# Kannan — Repository Understanding Engine
+# Analyzes a repo and produces .kannan/project_model.json
 
 # Language detection by file extension
 declare -A LANG_EXTENSIONS=(
@@ -69,7 +69,7 @@ _repo_files() {
             -not -path '*/vendor/*' \
             -not -path '*/__pycache__/*' \
             -not -path '*/target/*' \
-            -not -path '*/.council/*' \
+            -not -path '*/.kannan/*' \
             -not -path '*/.venv/*' \
             -not -path '*/dist/*' \
             -not -path '*/build/*' \
@@ -84,7 +84,7 @@ _repo_files() {
 _repo_scan() {
     local dir="$1"
     local state_dir
-    state_dir="$(council_state_dir "$dir")"
+    state_dir="$(kannan_state_dir "$dir")"
 
     declare -A lang_files=()
     declare -A lang_lines=()
@@ -181,7 +181,7 @@ EOJSON
 _repo_deps() {
     local dir="$1"
     local state_dir
-    state_dir="$(council_state_dir "$dir")"
+    state_dir="$(kannan_state_dir "$dir")"
 
     local deps_json="["
     local frameworks_json="["
@@ -302,7 +302,7 @@ EOJSON
 _repo_build_model() {
     local dir="$1"
     local state_dir
-    state_dir="$(council_state_dir "$dir")"
+    state_dir="$(kannan_state_dir "$dir")"
     local scan="$state_dir/cache/scan.json"
     local deps="$state_dir/cache/deps.json"
 
@@ -354,13 +354,13 @@ _repo_build_model() {
         scanned_at: $scanned_at
     }' > "$state_dir/project_model.json"
 
-    ui_success "Project model written to .council/project_model.json"
+    ui_success "Project model written to .kannan/project_model.json"
 }
 
 # Check if the repo is greenfield (empty or near-empty)
 repo_is_greenfield() {
     local dir="$1"
-    local model="$dir/$COUNCIL_DIR/project_model.json"
+    local model="$dir/$KANNAN_DIR/project_model.json"
     [[ ! -f "$model" ]] && return 0
 
     local total_files
@@ -380,7 +380,7 @@ repo_set_greenfield_prefs() {
     local framework="$3"
     local description="$4"
 
-    local model="$dir/$COUNCIL_DIR/project_model.json"
+    local model="$dir/$KANNAN_DIR/project_model.json"
     [[ ! -f "$model" ]] && return
 
     require_jq
@@ -409,7 +409,7 @@ repo_analyze() {
 # Get a summary of the project for agent context
 repo_summary() {
     local dir="$1"
-    local model="$dir/$COUNCIL_DIR/project_model.json"
+    local model="$dir/$KANNAN_DIR/project_model.json"
     [[ ! -f "$model" ]] && echo "No project model available." && return
 
     require_jq

@@ -1,22 +1,22 @@
 # Install to ~/.local by default (no sudo needed)
 # Override with: make install PREFIX=/usr/local
 PREFIX ?= $(HOME)/.local
-SHARE_DIR = $(PREFIX)/share/council
+SHARE_DIR = $(PREFIX)/share/kannan
 
 .PHONY: install uninstall test check
 
 install:
-	@echo "Installing council to $(PREFIX)..."
+	@echo "Installing kannan to $(PREFIX)..."
 	@mkdir -p $(PREFIX)/bin
 	@mkdir -p $(SHARE_DIR)/lib
 	@mkdir -p $(SHARE_DIR)/adapters
 	@cp lib/*.sh $(SHARE_DIR)/lib/
 	@cp adapters/*.sh $(SHARE_DIR)/adapters/
-	@cp council $(SHARE_DIR)/council
-	@chmod +x $(SHARE_DIR)/council
-	@ln -sf $(SHARE_DIR)/council $(PREFIX)/bin/council
+	@cp kannan $(SHARE_DIR)/kannan
+	@chmod +x $(SHARE_DIR)/kannan
+	@ln -sf $(SHARE_DIR)/kannan $(PREFIX)/bin/kannan
 	@echo ""
-	@echo "Installed: $(PREFIX)/bin/council -> $(SHARE_DIR)/council"
+	@echo "Installed: $(PREFIX)/bin/kannan -> $(SHARE_DIR)/kannan"
 	@echo ""
 	@if echo "$$PATH" | tr ':' '\n' | grep -qx "$(PREFIX)/bin"; then \
 		echo "$(PREFIX)/bin is already in PATH — you're good to go."; \
@@ -31,15 +31,15 @@ install:
 	fi
 
 uninstall:
-	@rm -f $(PREFIX)/bin/council
+	@rm -f $(PREFIX)/bin/kannan
 	@rm -rf $(SHARE_DIR)
 	@echo "Uninstalled."
 
 test:
-	@echo "Running council self-test..."
-	@./council version
+	@echo "Running kannan self-test..."
+	@./kannan version
 	@echo ""
-	@./council agent list
+	@./kannan agent list
 	@echo ""
 	@echo "All checks passed."
 

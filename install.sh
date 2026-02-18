@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Council — Installer
+# Kannan — Installer
 # Works on macOS and Linux
 # Usage:
 #   Local:  ./install.sh
-#   Remote: curl -fsSL https://raw.githubusercontent.com/council-dev/council/main/install.sh | bash
+#   Remote: curl -fsSL https://raw.githubusercontent.com/chaoticfly/dev-council/main/install.sh | bash
 set -euo pipefail
 
 # --- Config ---
-REPO_URL="https://github.com/council-dev/council.git"
-INSTALL_DIR="${COUNCIL_INSTALL_DIR:-$HOME/.council/src}"
-BIN_DIR="${COUNCIL_BIN_DIR:-$HOME/.local/bin}"
-VERSION="${COUNCIL_VERSION:-main}"
+REPO_URL="https://github.com/chaoticfly/dev-council.git"
+INSTALL_DIR="${KANNAN_INSTALL_DIR:-$HOME/.kannan/src}"
+BIN_DIR="${KANNAN_BIN_DIR:-$HOME/.local/bin}"
+VERSION="${KANNAN_VERSION:-main}"
 
 # --- Colors ---
 RED='\033[0;31m'
@@ -113,11 +113,11 @@ check_deps() {
 }
 
 # --- Install ---
-install_council() {
+install_kannan() {
     local is_local=0
 
-    # Check if we're running from within the council repo already
-    if [[ -f "$(dirname "${BASH_SOURCE[0]}")/council" && -d "$(dirname "${BASH_SOURCE[0]}")/lib" ]]; then
+    # Check if we're running from within the kannan repo already
+    if [[ -f "$(dirname "${BASH_SOURCE[0]}")/kannan" && -d "$(dirname "${BASH_SOURCE[0]}")/lib" ]]; then
         is_local=1
         local source_dir
         source_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -139,7 +139,7 @@ install_council() {
             git -C "$INSTALL_DIR" checkout "$VERSION" --quiet 2>/dev/null || \
                 git -C "$INSTALL_DIR" pull --quiet
         else
-            info "Cloning council..."
+            info "Cloning kannan..."
             rm -rf "$INSTALL_DIR"
             mkdir -p "$(dirname "$INSTALL_DIR")"
             git clone --quiet --depth 1 -b "$VERSION" "$REPO_URL" "$INSTALL_DIR" 2>/dev/null || \
@@ -147,12 +147,12 @@ install_council() {
         fi
     fi
 
-    # Make council executable
-    chmod +x "$INSTALL_DIR/council"
+    # Make kannan executable
+    chmod +x "$INSTALL_DIR/kannan"
 
     # Create symlink in bin dir
-    ln -sf "$INSTALL_DIR/council" "$BIN_DIR/council"
-    success "Linked: $BIN_DIR/council → $INSTALL_DIR/council"
+    ln -sf "$INSTALL_DIR/kannan" "$BIN_DIR/kannan"
+    success "Linked: $BIN_DIR/kannan → $INSTALL_DIR/kannan"
 
     # Check if BIN_DIR is in PATH
     if ! echo "$PATH" | tr ':' '\n' | grep -qx "$BIN_DIR"; then
@@ -192,38 +192,38 @@ install_council() {
 # --- Verify ---
 verify_install() {
     echo ""
-    if command -v council &>/dev/null || [[ -x "$BIN_DIR/council" ]]; then
+    if command -v kannan &>/dev/null || [[ -x "$BIN_DIR/kannan" ]]; then
         local ver
-        ver="$("$BIN_DIR/council" version 2>/dev/null || echo "unknown")"
+        ver="$("$BIN_DIR/kannan" version 2>/dev/null || echo "unknown")"
         success "Installed: $ver"
         echo ""
         echo -e "${BOLD}Getting started:${RESET}"
         echo "  cd your-project"
-        echo "  council dev"
+        echo "  kannan dev"
         echo ""
-        echo -e "${DIM}Run 'council help' for all commands${RESET}"
+        echo -e "${DIM}Run 'kannan help' for all commands${RESET}"
     else
-        error "Installation failed — council not found in PATH"
+        error "Installation failed — kannan not found in PATH"
         exit 1
     fi
 }
 
 # --- Uninstall ---
-uninstall_council() {
+uninstall_kannan() {
     echo ""
-    echo -e "${BOLD}Uninstalling council${RESET}"
+    echo -e "${BOLD}Uninstalling kannan${RESET}"
 
-    if [[ -L "$BIN_DIR/council" ]]; then
-        rm -f "$BIN_DIR/council"
-        success "Removed: $BIN_DIR/council"
-    elif [[ -f "$BIN_DIR/council" ]]; then
-        rm -f "$BIN_DIR/council"
-        success "Removed: $BIN_DIR/council"
+    if [[ -L "$BIN_DIR/kannan" ]]; then
+        rm -f "$BIN_DIR/kannan"
+        success "Removed: $BIN_DIR/kannan"
+    elif [[ -f "$BIN_DIR/kannan" ]]; then
+        rm -f "$BIN_DIR/kannan"
+        success "Removed: $BIN_DIR/kannan"
     else
-        warn "council not found in $BIN_DIR"
+        warn "kannan not found in $BIN_DIR"
     fi
 
-    if [[ -d "$INSTALL_DIR" && "$INSTALL_DIR" == *".council/src"* ]]; then
+    if [[ -d "$INSTALL_DIR" && "$INSTALL_DIR" == *".kannan/src"* ]]; then
         rm -rf "$INSTALL_DIR"
         success "Removed: $INSTALL_DIR"
     else
@@ -231,13 +231,13 @@ uninstall_council() {
     fi
 
     echo ""
-    success "Council uninstalled"
+    success "Kannan uninstalled"
 }
 
 # --- Main ---
 main() {
     echo ""
-    echo -e "${BOLD}Council Installer${RESET}"
+    echo -e "${BOLD}Kannan Installer${RESET}"
     echo ""
 
     local action="${1:-install}"
@@ -246,11 +246,11 @@ main() {
         install)
             detect_platform
             check_deps
-            install_council
+            install_kannan
             verify_install
             ;;
         uninstall|remove)
-            uninstall_council
+            uninstall_kannan
             ;;
         check)
             detect_platform
@@ -260,9 +260,9 @@ main() {
             echo "Usage: install.sh [install|uninstall|check]"
             echo ""
             echo "Environment variables:"
-            echo "  COUNCIL_INSTALL_DIR  Source location (default: ~/.council/src)"
-            echo "  COUNCIL_BIN_DIR     Binary location (default: ~/.local/bin)"
-            echo "  COUNCIL_VERSION     Git ref to install (default: main)"
+            echo "  KANNAN_INSTALL_DIR  Source location (default: ~/.kannan/src)"
+            echo "  KANNAN_BIN_DIR     Binary location (default: ~/.local/bin)"
+            echo "  KANNAN_VERSION     Git ref to install (default: main)"
             exit 1
             ;;
     esac

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Codex CLI Adapter
+# Kannan — Codex CLI Adapter
 
 codex_execute() {
     local system_prompt="$1"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Role Engine
+# Kannan — Role Engine
 # Dynamic role assignment based on task type and agent capabilities
 
 # Role definitions: name -> required capability

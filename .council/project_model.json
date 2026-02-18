@@ -1,0 +1,23 @@
+{
+  "root_path": "/home/chaos/projects/dev-council",
+  "languages": [
+    {
+      "name": "shell",
+      "file_count": 12,
+      "line_count": 1885,
+      "percentage": 81
+    }
+  ],
+  "total_files": 17,
+  "total_lines": 2305,
+  "entry_points": [],
+  "test_dirs": [],
+  "config_files": [
+    "Makefile"
+  ],
+  "dependencies": [],
+  "frameworks": [],
+  "build_command": "",
+  "test_command": "make test",
+  "scanned_at": "2026-02-17T22:48:17Z"
+}

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Council — Adaptive Multi-Agent Development Environment
-# https://github.com/council-dev/council
+# Kannan — Adaptive Multi-Agent Development Environment
+# Named after Krishna (Kannan in Tamil), the divine strategist and guide
 set -euo pipefail
 
-COUNCIL_VERSION="0.1.0"
-COUNCIL_DIR=".council"
+KANNAN_VERSION="0.1.0"
+KANNAN_DIR=".kannan"
 # Resolve through symlinks to find the real install location
 _resolve_script_dir() {
     local source="${BASH_SOURCE[0]}"
@@ -33,7 +33,7 @@ source "$SCRIPT_DIR/lib/runtime.sh"
 # --- Commands ---
 
 cmd_version() {
-    echo "council v${COUNCIL_VERSION}"
+    echo "kannan v${KANNAN_VERSION}"
 }
 
 cmd_dev() {
@@ -59,8 +59,8 @@ cmd_dev() {
     ui_banner
     ui_info "Working directory: $dir"
 
-    # Initialize .council state directory
-    council_init "$dir"
+    # Initialize .kannan state directory
+    kannan_init "$dir"
 
     # Phase 1: Understand the repository
     ui_phase "Analyzing repository..."
@@ -109,7 +109,7 @@ cmd_agent_list() {
 }
 
 cmd_agent_test() {
-    local name="${1:?Usage: council agent test <name>}"
+    local name="${1:?Usage: kannan agent test <name>}"
     agents_discover
     if ! agents_is_available "$name"; then
         ui_error "Agent '$name' is not available"
@@ -128,7 +128,7 @@ cmd_usage() {
             ;;
         clear)
             if ui_confirm "Clear global usage log?"; then
-                rm -f "$COUNCIL_GLOBAL_DIR/usage.jsonl"
+                rm -f "$KANNAN_GLOBAL_DIR/usage.jsonl"
                 ui_success "Global usage log cleared"
             else
                 ui_info "Cancelled"
@@ -161,32 +161,32 @@ cmd_memory_clear() {
 
 cmd_help() {
     cat <<EOF
-Council v${COUNCIL_VERSION} — Adaptive Multi-Agent Development Environment
+Kannan v${KANNAN_VERSION} — Adaptive Multi-Agent Development Environment
 
 Usage:
-  council dev [dir]                Start interactive council session (default: current dir)
-  council dev [dir] -p "intent"    Run a single intent and exit
-  council agent list               List available agents
-  council agent test <name>        Test an agent with a simple prompt
-  council config init [dir]        Generate a starter .council/config.json
-  council usage [dir]               Show project token usage per agent
-  council usage global             Show global usage across all projects
-  council usage clear              Clear global usage log
-  council memory show [dir]        Show project memory (sessions, patterns, stats)
-  council memory clear [dir]       Clear project memory
-  council version                  Print version
-  council help                     Show this help
+  kannan dev [dir]                Start interactive session (default: current dir)
+  kannan dev [dir] -p "intent"    Run a single intent and exit
+  kannan agent list               List available agents
+  kannan agent test <name>        Test an agent with a simple prompt
+  kannan config init [dir]        Generate a starter .kannan/config.json
+  kannan usage [dir]               Show project token usage per agent
+  kannan usage global             Show global usage across all projects
+  kannan usage clear              Clear global usage log
+  kannan memory show [dir]        Show project memory (sessions, patterns, stats)
+  kannan memory clear [dir]       Clear project memory
+  kannan version                  Print version
+  kannan help                     Show this help
 
 Options:
   -p, --prompt "text"    Run a single intent non-interactively
 
 Examples:
-  cd my-project && council dev
-  council dev /path/to/repo
-  council dev -p "add input validation to the login form"
-  council dev /path/to/repo -p "fix the failing tests"
-  council memory show
-  council agent list
+  cd my-project && kannan dev
+  kannan dev /path/to/repo
+  kannan dev -p "add input validation to the login form"
+  kannan dev /path/to/repo -p "fix the failing tests"
+  kannan memory show
+  kannan agent list
 EOF
 }
 
@@ -212,7 +212,7 @@ main() {
             shift || true
             case "$subcmd" in
                 init) config_init "$@" ;;
-                *)    echo "Usage: council config init [dir]"; exit 1 ;;
+                *)    echo "Usage: kannan config init [dir]"; exit 1 ;;
             esac
             ;;
         memory)
@@ -221,7 +221,7 @@ main() {
             case "$subcmd" in
                 show)  cmd_memory_show "$@" ;;
                 clear) cmd_memory_clear "$@" ;;
-                *)     echo "Usage: council memory show|clear [dir]"; exit 1 ;;
+                *)     echo "Usage: kannan memory show|clear [dir]"; exit 1 ;;
             esac
             ;;
         usage)        cmd_usage "$@" ;;

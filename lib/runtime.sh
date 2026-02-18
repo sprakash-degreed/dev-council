@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Runtime Orchestration
+# Kannan — Runtime Orchestration
 # The main execution loop: intent → plan → execute → critique → patch
 
 # Record session to memory after pipeline completes
@@ -107,7 +107,7 @@ runtime_execute_task() {
     user_prompt="$(role_build_prompt "$role" "$project_dir" "$task_description")"
 
     # Add relevant file contents to context
-    local model_file="$project_dir/$COUNCIL_DIR/project_model.json"
+    local model_file="$project_dir/$KANNAN_DIR/project_model.json"
     if [[ -f "$model_file" ]]; then
         local relevant_files
         relevant_files="$(jq -r '.entry_points[]? // empty' "$model_file" 2>/dev/null)"
@@ -154,31 +154,31 @@ runtime_create_patch() {
     local output="$3"
 
     if [[ ! -d "$project_dir/.git" ]]; then
-        ui_warn "Not a git repo — saving output to .council/patches/ instead"
+        ui_warn "Not a git repo — saving output to .kannan/patches/ instead"
         local patch_file
-        patch_file="$project_dir/$COUNCIL_DIR/patches/$(slugify "$intent")-$(date +%s).md"
+        patch_file="$project_dir/$KANNAN_DIR/patches/$(slugify "$intent")-$(date +%s).md"
         echo "$output" > "$patch_file"
         ui_info "Output saved to: $patch_file"
         return
     fi
 
-    local branch_name="council/$(slugify "$intent")-$(date +%s)"
+    local branch_name="kannan/$(slugify "$intent")-$(date +%s)"
 
     ui_info "Creating branch: $branch_name"
     git -C "$project_dir" checkout -b "$branch_name" 2>/dev/null || {
         ui_warn "Could not create branch — saving to patches directory"
         local patch_file
-        patch_file="$project_dir/$COUNCIL_DIR/patches/$(slugify "$intent")-$(date +%s).md"
+        patch_file="$project_dir/$KANNAN_DIR/patches/$(slugify "$intent")-$(date +%s).md"
         echo "$output" > "$patch_file"
         ui_info "Output saved to: $patch_file"
         return
     }
 
-    # Save the council output as a reference
-    local patch_file="$project_dir/$COUNCIL_DIR/patches/$(slugify "$intent").md"
+    # Save the kannan output as a reference
+    local patch_file="$project_dir/$KANNAN_DIR/patches/$(slugify "$intent").md"
     mkdir -p "$(dirname "$patch_file")"
     cat > "$patch_file" <<EOF
-# Council Output: $intent
+# Kannan Output: $intent
 Generated: $(now_ts)
 
 $output
@@ -191,7 +191,7 @@ EOF
 # Run verification (tests) if possible
 runtime_verify() {
     local project_dir="$1"
-    local model_file="$project_dir/$COUNCIL_DIR/project_model.json"
+    local model_file="$project_dir/$KANNAN_DIR/project_model.json"
 
     if [[ ! -f "$model_file" ]]; then
         return 0

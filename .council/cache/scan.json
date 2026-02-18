@@ -1,0 +1,8 @@
+{
+  "total_files": 17,
+  "total_lines": 2305,
+  "languages": [{"name":"shell","file_count":12,"line_count":1885,"percentage":81}],
+  "entry_points": [],
+  "test_dirs": [],
+  "config_files": ["Makefile"]
+}

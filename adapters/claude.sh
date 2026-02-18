@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Claude CLI Adapter
+# Kannan — Claude CLI Adapter
 
 claude_execute() {
     local system_prompt="$1"

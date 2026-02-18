@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# Council — Project Memory
+# Kannan — Project Memory
 # Persistent learning across sessions: decisions, patterns, agent performance
 
 MEMORY_DIR="memory"
 MEMORY_MAX_SESSIONS=5  # How many past sessions to include in context
-COUNCIL_GLOBAL_DIR="${COUNCIL_GLOBAL_DIR:-$HOME/.council}"
+KANNAN_GLOBAL_DIR="${KANNAN_GLOBAL_DIR:-$HOME/.kannan}"
 
 # Initialize memory directories (project-local + global)
 memory_init() {
     local dir="$1"
-    mkdir -p "$dir/$COUNCIL_DIR/$MEMORY_DIR"
-    mkdir -p "$COUNCIL_GLOBAL_DIR"
+    mkdir -p "$dir/$KANNAN_DIR/$MEMORY_DIR"
+    mkdir -p "$KANNAN_GLOBAL_DIR"
 }
 
 # Load memory context for injection into agent prompts
 # Returns a text block with recent sessions, patterns, and agent insights
 memory_load_context() {
     local dir="$1"
-    local mem_dir="$dir/$COUNCIL_DIR/$MEMORY_DIR"
+    local mem_dir="$dir/$KANNAN_DIR/$MEMORY_DIR"
 
     local has_content=0
     local context=""
@@ -99,7 +99,7 @@ memory_record_session() {
     local tokens="$7"
     local token_usage="${8:-}"  # JSON object: {"claude":{"in":N,"out":N,"calls":N},...}
 
-    local mem_dir="$dir/$COUNCIL_DIR/$MEMORY_DIR"
+    local mem_dir="$dir/$KANNAN_DIR/$MEMORY_DIR"
     local sessions_file="$mem_dir/sessions.jsonl"
 
     [[ -z "$intent" ]] && return
@@ -130,7 +130,7 @@ memory_record_session() {
         echo "$entry" >> "$sessions_file"
 
         # Write to global log (with project path)
-        local global_file="$COUNCIL_GLOBAL_DIR/usage.jsonl"
+        local global_file="$KANNAN_GLOBAL_DIR/usage.jsonl"
         echo "$entry" | jq -c --arg project "$dir" '. + {project: $project}' >> "$global_file" 2>/dev/null
     fi
 }
@@ -142,7 +142,7 @@ memory_record_pattern() {
 
     [[ -z "$pattern" ]] && return
 
-    local patterns_file="$dir/$COUNCIL_DIR/$MEMORY_DIR/patterns.md"
+    local patterns_file="$dir/$KANNAN_DIR/$MEMORY_DIR/patterns.md"
     echo "- $pattern" >> "$patterns_file"
 }
 
@@ -155,7 +155,7 @@ memory_update_stats() {
 
     [[ -z "$agent" || -z "$role" || -z "$verdict" ]] && return
 
-    local stats_file="$dir/$COUNCIL_DIR/$MEMORY_DIR/agent_stats.json"
+    local stats_file="$dir/$KANNAN_DIR/$MEMORY_DIR/agent_stats.json"
 
     # Initialize if missing
     if [[ ! -f "$stats_file" ]]; then
@@ -182,7 +182,7 @@ memory_suggest_agent() {
     local dir="$1"
     local role="$2"
 
-    local stats_file="$dir/$COUNCIL_DIR/$MEMORY_DIR/agent_stats.json"
+    local stats_file="$dir/$KANNAN_DIR/$MEMORY_DIR/agent_stats.json"
     [[ ! -f "$stats_file" ]] && return
 
     if has_cmd jq; then
@@ -218,7 +218,7 @@ _extract_patterns_from_critique() {
 # Pretty-print memory summary
 memory_show() {
     local dir="$1"
-    local mem_dir="$dir/$COUNCIL_DIR/$MEMORY_DIR"
+    local mem_dir="$dir/$KANNAN_DIR/$MEMORY_DIR"
 
     echo ""
     echo -e "${_BOLD}Project Memory${_RESET}"
@@ -294,7 +294,7 @@ memory_show() {
 # Show cumulative token usage table across all sessions
 memory_usage_table() {
     local dir="$1"
-    local mem_dir="$dir/$COUNCIL_DIR/$MEMORY_DIR"
+    local mem_dir="$dir/$KANNAN_DIR/$MEMORY_DIR"
     local sessions_file="$mem_dir/sessions.jsonl"
 
     echo ""
@@ -373,7 +373,7 @@ memory_usage_table() {
 
 # Show global token usage across all projects
 memory_usage_global() {
-    local global_file="$COUNCIL_GLOBAL_DIR/usage.jsonl"
+    local global_file="$KANNAN_GLOBAL_DIR/usage.jsonl"
 
     echo ""
     echo -e "${_BOLD}Global Token Usage (all projects)${_RESET}"
@@ -466,7 +466,7 @@ memory_usage_global() {
 # Clear all memory (requires confirmation handled by caller)
 memory_clear() {
     local dir="$1"
-    local mem_dir="$dir/$COUNCIL_DIR/$MEMORY_DIR"
+    local mem_dir="$dir/$KANNAN_DIR/$MEMORY_DIR"
 
     rm -f "$mem_dir/sessions.jsonl"
     rm -f "$mem_dir/patterns.md"

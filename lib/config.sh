@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Council — Configuration loader
-# Reads .council/config.json for user-defined role assignments and settings
+# Kannan — Configuration loader
+# Reads .kannan/config.json for user-defined role assignments and settings
 
 declare -A CONFIG_ROLES=()         # role -> pinned agent name
 declare -A CONFIG_AGENT_PROMPTS=() # agent -> custom prompt instructions
@@ -8,10 +8,10 @@ CONFIG_OLLAMA_MODEL=""              # override for ollama model
 CONFIG_MAX_ITERATIONS=""            # override for consensus max iterations
 CONFIG_LOADED=0
 
-# Load config from .council/config.json
+# Load config from .kannan/config.json
 config_load() {
     local dir="$1"
-    local config_file="$dir/$COUNCIL_DIR/config.json"
+    local config_file="$dir/$KANNAN_DIR/config.json"
 
     CONFIG_ROLES=()
     CONFIG_AGENT_PROMPTS=()
@@ -108,9 +108,9 @@ config_apply() {
 config_init() {
     local dir="${1:-.}"
     dir="$(cd "$dir" && pwd)"
-    local config_file="$dir/$COUNCIL_DIR/config.json"
+    local config_file="$dir/$KANNAN_DIR/config.json"
 
-    mkdir -p "$dir/$COUNCIL_DIR"
+    mkdir -p "$dir/$KANNAN_DIR"
 
     if [[ -f "$config_file" ]]; then
         ui_warn "Config already exists: $config_file"

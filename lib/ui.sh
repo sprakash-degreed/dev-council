@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — UI / Display functions
+# Kannan — UI / Display functions
 # Uses gum if available, falls back to plain terminal output
 
 # Colors (ANSI)
@@ -38,9 +38,9 @@ ui_banner() {
     echo ""
     if _use_gum; then
         gum style --border rounded --padding "0 2" --border-foreground 141 \
-            "COUNCIL v${COUNCIL_VERSION}" "Adaptive Multi-Agent Development"
+            "KANNAN v${KANNAN_VERSION}" "Adaptive Multi-Agent Development"
     else
-        echo -e "${_BOLD}=== COUNCIL v${COUNCIL_VERSION} ===${_RESET}"
+        echo -e "${_BOLD}=== KANNAN v${KANNAN_VERSION} ===${_RESET}"
         echo -e "${_DIM}Adaptive Multi-Agent Development${_RESET}"
     fi
     echo ""
@@ -50,7 +50,7 @@ ui_info() { echo -e "${_BLUE}[info]${_RESET} $*"; }
 ui_success() { echo -e "${_GREEN}[ok]${_RESET} $*"; }
 ui_warn() { echo -e "${_YELLOW}[warn]${_RESET} $*"; }
 ui_error() { echo -e "${_RED}[error]${_RESET} $*" >&2; }
-ui_debug() { [[ "${COUNCIL_DEBUG:-}" == "1" ]] && echo -e "${_DIM}[debug] $*${_RESET}" >&2; }
+ui_debug() { [[ "${KANNAN_DEBUG:-}" == "1" ]] && echo -e "${_DIM}[debug] $*${_RESET}" >&2; }
 
 ui_phase() {
     echo ""

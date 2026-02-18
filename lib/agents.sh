@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Council — Agent Discovery and Management
+# Kannan — Agent Discovery and Management
 
 # Agent registry (populated by agents_discover)
 declare -A AGENTS_AVAILABLE=()

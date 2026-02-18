@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Council — Ollama Adapter
+# Kannan — Ollama Adapter
 
-# Default model (can be overridden via COUNCIL_OLLAMA_MODEL env var or config.json)
-OLLAMA_MODEL="${COUNCIL_OLLAMA_MODEL:-llama3.2}"
+# Default model (can be overridden via KANNAN_OLLAMA_MODEL env var or config.json)
+OLLAMA_MODEL="${KANNAN_OLLAMA_MODEL:-llama3.2}"
 
 ollama_execute() {
     local system_prompt="$1"

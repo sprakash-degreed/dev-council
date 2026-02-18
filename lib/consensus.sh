@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Council — Consensus / Critique Loop
+# Kannan — Consensus / Critique Loop
 
-CONSENSUS_MAX_ITERATIONS="${COUNCIL_MAX_ITERATIONS:-3}"
+CONSENSUS_MAX_ITERATIONS="${KANNAN_MAX_ITERATIONS:-3}"
 
 # Parse critique verdict from agent output
 # Expects JSON block with verdict field
